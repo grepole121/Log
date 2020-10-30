@@ -1,0 +1,6 @@
+LOG:
+-Auto upload to cloud
+-Encrypt before uploading
+-Use login to have local access
+-GUI
+-Have it stored on the cloud then download, decode, append, encrypt, upload or just download and decode for read only
