@@ -1,4 +1,8 @@
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QDialog, \
+    QLineEdit, \
+    QPushButton, \
+    QVBoxLayout, \
+    QMessageBox
 from pass_key_gen import gen_key
 
 

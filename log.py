@@ -1,12 +1,21 @@
 import sys
 import os
 import os.path
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QDialog, \
+    QPushButton, \
+    QVBoxLayout, \
+    QWidget, \
+    QDesktopWidget, \
+    QPlainTextEdit, \
+    QTextEdit, \
+    QHBoxLayout, \
+    QApplication
 from PyQt5.Qt import QEvent
 from PyQt5.Qt import Qt
 from login import Login
 from createKey import CreateKey
 from cryptography.fernet import Fernet
+import config
 
 
 
@@ -16,14 +25,12 @@ from cryptography.fernet import Fernet
 # User can read the contents of the file after logging in
 # User can now append to the file. Can press enter instead of needing to click the button
 # Escape key will now close the current window in focus
-
+# If the key is deleted and then recreated with the wrong password it will now fail
 
 # TODO:
-# If the key is deleted and then recreated with the wrong password must not allow key to be made and return error.
+# Cloud upload
 
 
-# Destination the log is saved in
-file_destination = "/home/george/MEGA/Log/New/log.txt"
 
 # The window in which the user can read the contents of the file
 class ReadWindow(QWidget):
@@ -49,7 +56,7 @@ class ReadWindow(QWidget):
 
         text_edit = QPlainTextEdit()
         self.decrypt()
-        with open("log.txt", "r") as keyfile:
+        with open(config.file_destination, "r") as keyfile:
             text = keyfile.read()
         self.encrypt()
         text_edit.setPlainText(text)
@@ -59,26 +66,28 @@ class ReadWindow(QWidget):
         self.setLayout(vbox)
 
     def encrypt(self):
-        #Encrypt the file after changes have been made
-        with open(file_destination, "rb") as log:
+        # Encrypt the file after changes have been made
+        with open(config.file_destination, "rb") as log:
             log_data = log.read()
         encrypted_log = self.f.encrypt(log_data)
-        with open(file_destination, "wb") as log:
+        with open(config.file_destination, "wb") as log:
             log.write(encrypted_log)
 
     def decrypt(self):
-        #Decrypt the file so changes can be written
-        if os.path.isfile(file_destination):
-            with open(file_destination, "rb") as log:
+        # Decrypt the file so changes can be written
+        if os.path.isfile(config.file_destination):
+            with open(config.file_destination, "rb") as log:
                 encrypted_data = log.read()
-            decrypted_data = self.f.decrypt(encrypted_data)
-            with open(file_destination, "wb") as log:
-                log.write(decrypted_data)
+            if len(encrypted_data) > 0:
+                decrypted_data = self.f.decrypt(encrypted_data)
+                with open(config.file_destination, "wb") as log:
+                    log.write(decrypted_data)
 
     # Closes the window if the user presses the ESC key
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
+
 
 class AddWindow(QWidget):
     # Need to create the window for the user the add to the file
@@ -86,7 +95,7 @@ class AddWindow(QWidget):
         super().__init__()
         self.appendBox()
         self.initUI() # Initialise the UI
-        self.f = Fernet(open("key.key", "rb").read()) # Reads the key and genereates the Fernet
+        self.f = Fernet(open("key.key", "rb").read()) # Reads the key and generates the Fernet
 
     def initUI(self):
         self.setWindowTitle('Append...')
@@ -100,21 +109,22 @@ class AddWindow(QWidget):
         self.move(qr.topLeft())
 
     def encrypt(self):
-        #Encrypt the file after changes have been made
-        with open(file_destination, "rb") as log:
+        # Encrypt the file after changes have been made
+        with open(config.file_destination, "rb") as log:
             log_data = log.read()
         encrypted_log = self.f.encrypt(log_data)
-        with open(file_destination, "wb") as log:
+        with open(config.file_destination, "wb") as log:
             log.write(encrypted_log)
 
     def decrypt(self):
-        #Decrypt the file so changes can be written
-        if os.path.isfile(file_destination):
-            with open(file_destination, "rb") as log:
+        # Decrypt the file so changes can be written
+        if os.path.isfile(config.file_destination):
+            with open(config.file_destination, "rb") as log:
                 encrypted_data = log.read()
-            decrypted_data = self.f.decrypt(encrypted_data)
-            with open(file_destination, "wb") as log:
-                log.write(decrypted_data)
+            if len(encrypted_data) > 0:
+                decrypted_data = self.f.decrypt(encrypted_data)
+                with open(config.file_destination, "wb") as log:
+                    log.write(decrypted_data)
 
     def appendBox(self):
         layout = QVBoxLayout()
@@ -135,7 +145,7 @@ class AddWindow(QWidget):
         date = time.strftime('%d/%m/%Y')
         time = time.strftime('%H:%M:%S')
         self.decrypt()
-        with open("/home/george/MEGA/Log/New/log.txt", 'a') as myfile:
+        with open(config.file_destination, 'a') as myfile:
             myfile.write('[ ' + date + ' - ' + time + ' ] - ' + self.appendData.toPlainText() + '\n')
         self.encrypt()
         self.close()

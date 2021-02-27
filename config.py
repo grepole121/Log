@@ -1,0 +1,1 @@
+file_destination = "/home/george/MEGA/Log/New/log.txt"
