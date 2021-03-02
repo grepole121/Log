@@ -1,1 +1,1 @@
-file_destination = "/home/george/MEGA/Log/New/log.txt"
+file_destination = "/home/george/git/Log/log.txt"
