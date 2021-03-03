@@ -16,20 +16,8 @@ from login import Login
 from createKey import CreateKey
 from cryptography.fernet import Fernet
 import config
-
-
-
-# Current state of program:
-# First time opening user will be prompted to create a password
-# After that user will be prompted to enter the password and if it matches the key program will open
-# User can read the contents of the file after logging in
-# User can now append to the file. Can press enter instead of needing to click the button
-# Escape key will now close the current window in focus
-# If the key is deleted and then recreated with the wrong password it will now fail
-
-# TODO:
-# Cloud upload
-
+import dropbox
+import access_token
 
 
 # The window in which the user can read the contents of the file
@@ -55,33 +43,20 @@ class ReadWindow(QWidget):
         vbox = QVBoxLayout()
 
         text_edit = QPlainTextEdit()
-        self.decrypt()
-        with open(config.file_destination, "r") as keyfile:
-            text = keyfile.read()
-        self.encrypt()
-        text_edit.setPlainText(text)
+        text_edit.setPlainText(self.read_decrypt())
         text_edit.setReadOnly(True)
 
         vbox.addWidget(text_edit)
         self.setLayout(vbox)
 
-    def encrypt(self):
-        # Encrypt the file after changes have been made
-        with open(config.file_destination, "rb") as log:
-            log_data = log.read()
-        encrypted_log = self.f.encrypt(log_data)
-        with open(config.file_destination, "wb") as log:
-            log.write(encrypted_log)
-
-    def decrypt(self):
+    def read_decrypt(self):
         # Decrypt the file so changes can be written
         if os.path.isfile(config.file_destination):
             with open(config.file_destination, "rb") as log:
                 encrypted_data = log.read()
             if len(encrypted_data) > 0:
                 decrypted_data = self.f.decrypt(encrypted_data)
-                with open(config.file_destination, "wb") as log:
-                    log.write(decrypted_data)
+                return decrypted_data.decode("utf-8")
 
     # Closes the window if the user presses the ESC key
     def keyPressEvent(self, event):
@@ -148,7 +123,19 @@ class AddWindow(QWidget):
         with open(config.file_destination, 'a') as myfile:
             myfile.write('[ ' + date + ' - ' + time + ' ] - ' + self.appendData.toPlainText() + '\n')
         self.encrypt()
+        self.upload()
         self.close()
+
+    def upload(self):
+        try:
+            # Check if the access token is valid and if it is then upload log.txt to Dropbox
+            dbx = dropbox.Dropbox(access_token.access_token)
+            with open(config.file_destination, "rb") as logtxt:
+                log = logtxt.read()
+
+            dbx.files_upload(log, "/log.txt", mode=dropbox.files.WriteMode.overwrite)
+        except:
+            print("Access token error! Delete access_token.py (if exists) and run setup_upload.py")
 
     # Listens for the user pressing the return/enter key.
     # When return is pressed it executes the writeToFile function
