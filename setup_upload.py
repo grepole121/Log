@@ -23,7 +23,7 @@ with dropbox.Dropbox(oauth2_access_token=oauth_result.access_token) as dbx:
     dbx.users_get_current_account()
     print("Successfully set up client!")
 
-with open("access_token.py", "a") as conf:
+with open("access_token.py", "w") as conf:
     conf.write(f"access_token = \042{dbx._oauth2_access_token}\042")
 
 
