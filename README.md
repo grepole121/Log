@@ -3,6 +3,8 @@
 
 The user will set the desired file destination in the config.py file.
 
+Then run setup_upload.py and follow to instructions if you want to enable uploading to Dropbox
+
 Then run log.py in Python3
 
 When you first open the program the screen will ask for a password
