@@ -135,7 +135,7 @@ class AddWindow(QWidget):
 
             dbx.files_upload(log, "/log.txt", mode=dropbox.files.WriteMode.overwrite)
         except:
-            print("Access token error! Delete access_token.py (if exists) and run setup_upload.py")
+            print("Access token error! Run setup_upload.py to upload to Dropbox")
 
     # Listens for the user pressing the return/enter key.
     # When return is pressed it executes the writeToFile function
