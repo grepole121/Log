@@ -1,11 +1,11 @@
 # Encrypted Log/Diary
-### This is a small personal project which is an encrypted log/diary in Python3 using PyQt5 for GUI
+### This is a small personal project which is an encrypted log/diary in Python3 using PyQt5 for GUI and syncs to Dropbox
 
 The user will set the desired file destination in the config.py file.
 
 Then run setup_upload.py and follow to instructions if you want to enable uploading to Dropbox
 
-Then run log.py in Python3
+Then run main.py in Python3
 
 When you first open the program the screen will ask for a password
 
